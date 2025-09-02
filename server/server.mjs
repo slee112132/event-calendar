@@ -13,15 +13,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- Change nothing above this line ---
-
-// Delay every request by a few seconds
-app.use((req, res, next) => {
-  const delay = Math.floor(Math.random() * 4) * 1000;
-  setTimeout(() => {
-      next();
-  }, delay);
-});
 
 // Connect to MongoDB
 const client = new MongoClient('mongodb://localhost:27017');
@@ -32,11 +23,7 @@ const db = conn.db('app');
 const eventsCollection = db.collection('events');
 
 /*
-This GET endpoint retrieves all events from the collection, optionally filtered by
-a single category and/or text searched by `search` query parameter.
-The query object is built up conditionally to include `$text` and `type` only
-when those params are present. Returns status 200 with a JSON array of events.
-Errors are passed to next() for centralized handling.
+GET
 */
 app.get('/api/events', async (req, res, next) => {
   try {
@@ -55,10 +42,7 @@ app.get('/api/events', async (req, res, next) => {
 });
 
 /*
-This GET endpoint retrieves one event by its MongoDB ObjectId using findOne().
-It correctly checks for missing documents and returns a 404 if not found, or 200 with JSON otherwise.
-The ObjectId parsing and use of req.params follow class rules.
-The error handling is properly given to to the Express error handling thru next(). Everything is logically correct so nothing was changed.
+FIND ONE
 */
 app.get('/api/events/:id', async (req, res, next) => {
   try {
@@ -75,10 +59,7 @@ app.get('/api/events/:id', async (req, res, next) => {
 });
 
 /*
-This DELETE endpoint removes an event document using deleteOne() by ObjectId.
-It returns 200 on success, 404 if no document was deleted, with no body as required.
-The structure mirrors what was taught in class and includes clear control flow.
-Error handling is passed to Express for any exceptions. Nothing changed.
+DELETE
 */
 app.delete('/api/events/:id', async (req, res, next) => {
   try {
@@ -95,10 +76,7 @@ app.delete('/api/events/:id', async (req, res, next) => {
 });
 
 /*
-This DELETE endpoint removes an event document using deleteOne() by ObjectId.
-It returns 200 on success, 404 if no document was deleted, with no body as required.
-The structure reflects what was taught in class and includes flow.
-Error handling is passed to Express for any exceptions. Nothing changed.
+INSERT
 */
 app.post('/api/events', async (req, res, next) => {
   try {
@@ -111,10 +89,7 @@ app.post('/api/events', async (req, res, next) => {
 });
 
 /*
-  PUT /api/events/:id
-  Replaces an event using replaceOne().
-  Deletes `_id` from the request body before replacement as required.
-  Returns 200 with the updated document or 404 if not found. Deleted .response.body from eventId.response.body._id, this is something that AI kept giving me for test.http, which wouldn't work anyway, but was weird that it gave it to me here. I omitted it so that the code would function correctly.
+REPLACE
 */
 app.put('/api/events/:id', async (req, res) => {
     const eventId = req.params.id;
@@ -133,10 +108,7 @@ app.put('/api/events/:id', async (req, res) => {
 
 
 /*
-This PATCH endpoint modifies specific fields of an event using $set and updateOne().
-It only updates the fields provided in the request body, leaving other fields untouched.
-The response is the full updated document, with 404 returned if no document is matched.
-This matches our classroom implementation for partial updates, no changes needed.
+PATCH
 */
 app.patch('/api/events/:id', async (req, res, next) => {
   try {
@@ -160,9 +132,7 @@ app.patch('/api/events/:id', async (req, res, next) => {
 });
 
 /*
-  Increments attendees by 1 using $inc.
-  Returns 200 with updated document or 404 if event not found.
-  Responds with updated document, functions correctly. Nothing changed.
+INCREMENT 1
 */
 app.post('/api/events/:id/rsvp', async (req, res, next) => {
   try {
@@ -182,10 +152,7 @@ app.post('/api/events/:id/rsvp', async (req, res, next) => {
 });
 
 /*
-POST /api/events/:id/cancelRSVP
-Decrements attendees by 1 using $inc.
-Returns 200 with updated document or 404 if event not found.
-Responds with updated document, functions correctly. Nothing changed.
+DECREMENT 1
 */
 app.post('/api/events/:id/cancelRSVP', async (req, res, next) => {
   try {
@@ -203,8 +170,6 @@ app.post('/api/events/:id/cancelRSVP', async (req, res, next) => {
     next(err);
   }
 });
-
-// --- Change nothing below this line ---
 
 // 404 - not found
 app.use((req, res, next) => {
